@@ -1,9 +1,8 @@
 ﻿namespace TestTask.Models.DTOs
 {
-
-    public class IncidentDTO
+    public class IncidentCreationRequest
     {
         public string Description { get; set; }
-        public List<string>? AccountsNames { get; set; }
+        public string AccountName { get; set; }
     }
 }

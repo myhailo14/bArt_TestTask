@@ -1,9 +1,11 @@
 ﻿namespace TestTask.Models.DTOs
 {
+
     public class AccountDTO
     {
-        public string AccountName { get; set; }
-        public string ContactEmail { get; set; }
+        public string AcountName { get; set; }
+        public List<string> ContactsEmails { get; set; }
+        public string IncidentName { get; set; }
     }
 
 }

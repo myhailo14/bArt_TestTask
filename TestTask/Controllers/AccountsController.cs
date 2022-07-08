@@ -17,7 +17,7 @@ namespace TestTask.Controllers
     public class AccountsController : ControllerBase
     {
         private readonly TestAppDbContext _context;
-       
+
         public AccountsController(TestAppDbContext context)
         {
             _context = context;
@@ -25,18 +25,28 @@ namespace TestTask.Controllers
 
         // GET: api/Accounts
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
+        public async Task<ActionResult<IEnumerable<AccountDTO>>> GetAccounts()
         {
             if (_context.Accounts == null)
             {
                 return NotFound();
             }
-            return await _context.Accounts.ToListAsync();
+
+            var accounts = await _context.Accounts.ToListAsync();
+            var result = new List<AccountDTO>();
+
+            foreach (var a in accounts)
+            {
+                result.Add(new AccountDTO() { AcountName = a.Name, ContactsEmails = a.Contacts.Select(c => c.Email).ToList(), IncidentName = a.IncidentName });
+            }
+
+
+            return result;
         }
 
         // GET: api/Accounts/Test
         [HttpGet("{name}")]
-        public async Task<ActionResult<Account>> GetAccount(string name)
+        public async Task<ActionResult<AccountDTO>> GetAccount(string name)
         {
             if (_context.Accounts == null)
             {
@@ -49,13 +59,13 @@ namespace TestTask.Controllers
                 return NotFound();
             }
 
-            return account;
+            return new AccountDTO() { AcountName = account.Name, ContactsEmails = account.Contacts.Select(c => c.Email).ToList(), IncidentName = account.IncidentName };
         }
 
         // POST: api/Accounts
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<AccountDTO>> PostAccount(AccountDTO accountDto)
+        public async Task<ActionResult<AccountCreationRequest>> PostAccount(AccountCreationRequest accountDto)
         {
 
             if (_context.Accounts == null)
@@ -65,7 +75,7 @@ namespace TestTask.Controllers
 
             var contact = await _context.Contacts.FindAsync(accountDto.ContactEmail);
 
-            if(contact == null)
+            if (contact == null)
             {
                 return BadRequest(new string("This contact does not exist"));
             }

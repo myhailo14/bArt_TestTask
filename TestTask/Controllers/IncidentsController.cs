@@ -24,18 +24,26 @@ namespace TestTask.Controllers
 
         // GET: api/Incidents
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Incident>>> GetIncidents()
+        public async Task<ActionResult<IEnumerable<IncidentDTO>>> GetIncidents()
         {
             if (_context.Incidents == null)
             {
                 return NotFound();
             }
-            return await _context.Incidents.ToListAsync();
+
+            var incidents = await _context.Incidents.ToListAsync();
+            var result = new List<IncidentDTO>();
+            foreach(var i in incidents)
+            {
+                result.Add(new IncidentDTO() { Description = i.Description, AccountsNames = i.Accounts.Select(a => a.Name).ToList() });
+            }
+
+            return result;
         }
 
         // GET: api/Incidents/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Incident>> GetIncident(string id)
+        public async Task<ActionResult<IncidentDTO>> GetIncident(string id)
         {
             if (_context.Incidents == null)
             {
@@ -48,13 +56,13 @@ namespace TestTask.Controllers
                 return NotFound();
             }
 
-            return incident;
+            return new IncidentDTO() { Description = incident.Description, AccountsNames = incident.Accounts.Select(a => a.Name).ToList() };
         }
 
         // POST: api/Incidents
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<IncidentDTO>> PostIncident(IncidentDTO incidentDto)
+        public async Task<ActionResult<IncidentCreationRequest>> PostIncident(IncidentCreationRequest incidentDto)
         {
             if (_context.Incidents == null)
             {
